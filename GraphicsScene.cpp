@@ -20,14 +20,7 @@ GraphicsScene::~GraphicsScene()
 
 void GraphicsScene::Initialize()
 {
-    connect(this, &GraphicsScene::sceneRectChanged, this, [this](const QRectF &rect) {
 
-        // 加个信号阻塞，防止下面两句又触发sceneRectChanged信号，导致死循环
-        QSignalBlocker blocker(this);
-
-        setPixmapItemToSceneCenter();
-        scalePixmapItemToFitScene();
-    });
 }
 
 void GraphicsScene::SetImagePath(const QString &imagePath)
@@ -38,9 +31,10 @@ void GraphicsScene::SetImagePath(const QString &imagePath)
         addItem(m_pixmapItem);
     }
 
-    m_pixmapItem->setPixmap(QPixmap(imagePath));
-    setPixmapItemToSceneCenter();
-    scalePixmapItemToFitScene();
+    QPixmap pixmap(imagePath);
+    m_pixmapItem->setPixmap(pixmap);
+    m_pixmapItem->boundingRect();
+    setSceneRect(pixmap.rect());
 }
 
 QGraphicsPixmapItem *GraphicsScene::GetPixmapItem() const
@@ -100,29 +94,4 @@ void GraphicsScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     m_drawingItem = nullptr;
 
     QGraphicsScene::mouseReleaseEvent(event);
-}
-
-void GraphicsScene::setPixmapItemToSceneCenter()
-{
-    if (!m_pixmapItem)
-    {
-        return;
-    }
-
-    m_pixmapItem->setPos(sceneRect().center() - m_pixmapItem->pixmap().rect().center());
-}
-
-void GraphicsScene::scalePixmapItemToFitScene()
-{
-    if (!m_pixmapItem)
-    {
-        return;
-    }
-
-    QSizeF pixmapSize = m_pixmapItem->pixmap().size();
-    auto pixmapSizeScaled = pixmapSize.scaled(width(), height(), Qt::KeepAspectRatio);
-
-    m_pixmapItem->setTransformOriginPoint(m_pixmapItem->boundingRect().center());
-    m_pixmapItem->setScale(pixmapSizeScaled.width() / pixmapSize.width());
-    m_pixmapItem->SetFitSceneScale(m_pixmapItem->scale());
 }

@@ -27,8 +27,6 @@ protected:
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override;
 
 private:
-    void setPixmapItemToSceneCenter();
-    void scalePixmapItemToFitScene();
 
 private:
     GraphicsPixmapItem *m_pixmapItem = nullptr;

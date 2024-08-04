@@ -33,12 +33,7 @@ void GraphicsView::SetImagePath(const QString &imagePath)
     {
         scene->SetImagePath(imagePath);
 
-        //FitPixmapItemInView();
-
-        /*QTimer::singleShot(10, this, [this](){
-            qDebug() << "GraphicsView::SetImagePath" << scene->GetPixmapItem()->boundingRect();
-            FitPixmapItemInView();
-        });*/
+        FitPixmapItemInView();
     }
 }
 
@@ -54,18 +49,21 @@ void GraphicsView::FitPixmapItemInView()
 {
     if (auto pixmapItem = scene->GetPixmapItem())
     {
-        fitInView(pixmapItem, Qt::KeepAspectRatio);
+        auto pixmap = pixmapItem->pixmap();
+        if (pixmap.width() > viewport()->width() || pixmap.height() > viewport()->height())
+        {
+            fitInView(pixmapItem, Qt::KeepAspectRatio);
+        }
+        else
+        {
+            resetTransform();
+        }
     }
 }
 
 void GraphicsView::resizeEvent(QResizeEvent *event)
 {
-    if (scene)
-    {
-        scene->setSceneRect(viewport()->rect());
-    }
-
-    //FitPixmapItemInView();
+    FitPixmapItemInView();
 
     QGraphicsView::resizeEvent(event);
 }
